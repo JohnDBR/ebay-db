@@ -5,7 +5,13 @@ Rails.application.routes.draw do
   put 'users', to: 'users#update'
   delete 'users', to: 'users#destroy'
 
+  namespace :users do
+    put ':user_id/admin', to: 'admins#update'
+    delete ':user_id/admin', to: 'admins#destroy'
+    get ':user_id/block/admin', to: 'admins#block'
+    get ':user_id/deblock/admin', to: 'admins#deblock'
+  end
+
   resources :sessions, only: :create
   delete 'sessions', to: 'sessions#destroy'
-
 end
