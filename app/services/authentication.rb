@@ -21,10 +21,12 @@ class Authentication
     credentials[:email] ||= ''
     credentials[:username] ||= ''
     @user = User.find_by(email: credentials[:email].downcase)
-    @user = User.find_by(username: credentials[:username].downcase) unless @user
+    @user = User.find_by(username: credentials[:username].downcase) unless @user 
     @user = nil unless @user && @user.authenticate(credentials[:password].to_s.downcase) 
     @errors[:single_authentication] = 'invalid credentials' unless @user
-    @user = nil unless @user.block.nil?
-    @errors[:single_authentication] = 'user is blocked' unless @user
+    if @user
+      @user = nil unless @user.block.nil?
+      @errors[:single_authentication] = 'user is blocked' unless @user
+    end
   end
 end
