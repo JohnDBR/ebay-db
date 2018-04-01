@@ -4,7 +4,7 @@ class Users::AdminsController < ApplicationController
   
   def update
     @user.update_attributes user_params 
-    save_and_render @current_user
+    save_and_render @user
   end
 
   def destroy
@@ -28,6 +28,10 @@ class Users::AdminsController < ApplicationController
     else
       render json: {authorization: 'user is not blocked'}, status: :unprocessable_entity
     end  
+  end
+
+  def index_block
+    render_ok Block.all
   end
 
   private 
