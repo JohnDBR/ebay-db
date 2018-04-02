@@ -1,15 +1,6 @@
 class Users::AdminsController < ApplicationController 
   before_action :is_current_user_admin
-  before_action :set_user, only: [:update, :destroy, :block]
-  
-  def update
-    @user.update_attributes user_params 
-    save_and_render @user
-  end
-
-  def destroy
-    render_ok @user.destroy
-  end
+  before_action :set_user, only: [:block]
 
   def block
     if !@user.tokens.nil?
@@ -21,7 +12,7 @@ class Users::AdminsController < ApplicationController
     save_and_render block
   end
 
-  def deblock
+  def unblock
     block = Block.where(user_id:params[:user_id].to_i).first
     if block
       render_ok block.destroy
@@ -37,16 +28,5 @@ class Users::AdminsController < ApplicationController
   private 
   def set_user
     @user = User.find params[:user_id]
-  end
-
-  def user_params
-    params.permit(
-      :company,
-      :name,
-      :username,
-      :password,
-      :email, 
-      :role
-    )
   end
 end

@@ -14,13 +14,21 @@ class OriginsController < ApplicationController
     save_and_render origin
   end
 
-  def update 
-    @origin.update_attributes origin_params 
-    save_and_render @origin
+  def update
+    if @origin.user_id == @current_user.id 
+      @origin.update_attributes origin_params 
+      save_and_render @origin
+    else
+      permissions_error
+    end
   end
 
   def destroy
-    render_ok @origin.destroy  
+    if @origin.user_id == @current_user.id 
+      render_ok @origin.destroy  
+    else
+      permissions_error
+    end
   end
 
   private 
