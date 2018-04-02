@@ -13,6 +13,10 @@ Rails.application.routes.draw do
 
   resources :origins, only: [:index, :show, :create, :update, :destroy]
   
-  resources :products, only: [:index, :show, :create, :update, :destroy]
+  resources :products, only: [:index, :show, :create, :update, :destroy] do 
+    resources :comments, only: [:index, :create]
+  end
+
+  resources :comments, only: [:show, :destroy]
 
 end
