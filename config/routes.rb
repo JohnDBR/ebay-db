@@ -15,9 +15,13 @@ Rails.application.routes.draw do
   
   resources :products, only: [:index, :show, :create, :update, :destroy] do 
     resources :comments, only: [:index, :create]
+    resources :bids, only: [:index, :create]
   end
 
   resources :comments, only: [:show, :destroy]
   get 'user_comments', to: 'comments#user_index'
+
+  resources :bids, only: [:show]
+  get 'user_bids', to: 'bids#user_index'
 
 end

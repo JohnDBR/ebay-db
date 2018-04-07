@@ -27,6 +27,9 @@ class UsersController < ApplicationController
   end
 
   def destroy
+    # if !(products = @user.products).empty?
+    #   products.each { |product| }
+    # end
     if @user.id == @current_user.id
       render_ok @current_user.destroy 
     elsif is_current_user_admin.nil?

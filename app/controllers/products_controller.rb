@@ -1,5 +1,5 @@
 class ProductsController < ApplicationController
-  before_action :set_product, only: [:show, :update, :destroy]
+  before_action :set_product, only: [:show, :update, :destroy, :bid]
   skip_before_action :get_current_user, only: [:index, :show] 
 
   def index
@@ -47,6 +47,7 @@ class ProductsController < ApplicationController
       :stock, 
       :price,
       :is_used, 
+      :is_auction
     )
   end
 end
