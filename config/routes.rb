@@ -18,5 +18,6 @@ Rails.application.routes.draw do
   end
 
   resources :comments, only: [:show, :destroy]
+  get 'user_comments', to: 'comments#user_index'
 
 end

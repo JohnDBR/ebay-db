@@ -7,6 +7,10 @@ class CommentsController < ApplicationController
     render_ok @product.comments 
   end
 
+  def user_index
+    render_ok @current_user.comments
+  end
+
   def show 
     render_ok @comment
   end
