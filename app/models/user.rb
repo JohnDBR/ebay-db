@@ -6,10 +6,12 @@ class User < ApplicationRecord
 
   before_save :format_downcase
 
+  has_one :block, dependent: :destroy
   has_many :tokens, dependent: :destroy
   has_many :origins, dependent: :destroy
+  has_many :products, dependent: :destroy
   has_many :comments, dependent: :destroy
-  has_one :block, dependent: :destroy
+  has_many :bids, dependent: :destroy 
   
   protected 
   def format_downcase
