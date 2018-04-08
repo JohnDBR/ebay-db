@@ -27,14 +27,15 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    # if !(products = @user.products).empty?
-    #   products.each { |product| }
-    # end
-    if @user.id == @current_user.id
-      render_ok @current_user.destroy 
-    elsif is_current_user_admin.nil?
-      render_ok @user.destroy 
-    end  
+    if @current_user.sold_products.empty? and @current_user.bought_products.empty? 
+      if @user.id == @current_user.id
+        render_ok @current_user.destroy 
+      elsif is_current_user_admin.nil?
+        render_ok @user.destroy 
+      end
+    else
+      render json: {authorization: 'we have to preserve the history of the web page'}, status: :unprocessable_entity
+    end
   end
 
   private 

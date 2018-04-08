@@ -7,6 +7,7 @@ class Product < ApplicationRecord
   has_one :origin
   has_many :bids, dependent: :destroy 
   has_many :comments, dependent: :destroy
+  has_many :purchases
 
   protected
     def format_downcase

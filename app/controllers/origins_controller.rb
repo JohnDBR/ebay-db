@@ -15,25 +15,41 @@ class OriginsController < ApplicationController
   end
 
   def update
-    if @origin.user_id == @current_user.id 
+    if is_my_origin? and is_not_a_purchase_associated?
       @origin.update_attributes origin_params 
       save_and_render @origin
-    else
-      permissions_error
     end
   end
 
   def destroy
-    if @origin.user_id == @current_user.id 
-      render_ok @origin.destroy  
-    else
-      permissions_error
-    end
+    render_ok @origin.destroy if is_my_origin? and is_not_a_product_associated?
   end
 
   private 
   def set_origin
     @origin = Origin.find params[:id]
+  end
+
+  def is_my_origin?
+    if @origin.user.id == @current_user.id then true else permissions_error end
+  end
+
+  def is_not_a_product_associated?
+    if Product.Where(origin:@origin).empty?
+      true
+    else
+      render json: {authorization: 'You can not edit/destroy origin with products associated'}, status: :unprocessable_entity
+    end
+  end 
+
+  def is_not_a_purchase_associated?
+    render = false
+    Product.where(origin:@origin).map { |product| if !product.purchases.empty? then render = true ; break end }
+    if !render
+      true 
+    else  
+      render json: {authorization: 'You can not edit/destroy products that users already bought, we have to preserve the history'}, status: :unprocessable_entity
+    end
   end
 
   def origin_params

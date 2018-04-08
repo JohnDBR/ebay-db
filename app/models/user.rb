@@ -12,6 +12,9 @@ class User < ApplicationRecord
   has_many :products, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :bids, dependent: :destroy 
+  has_many :sold_products, :class_name => 'Purchase', :foreign_key => 'seller_id'
+  has_many :bought_products, :class_name => 'Purchase', :foreign_key => 'buyer_id'
+
   
   protected 
   def format_downcase

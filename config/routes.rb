@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   resources :products, only: [:index, :show, :create, :update, :destroy] do 
     resources :comments, only: [:index, :create]
     resources :bids, only: [:index, :create]
+    resources :purchases, only: [:create]
   end
 
   resources :comments, only: [:show, :destroy]
@@ -23,5 +24,12 @@ Rails.application.routes.draw do
 
   resources :bids, only: [:show]
   get 'user_bids', to: 'bids#user_index'
+
+  resources :purchases, only: [:index, :show]
+  get 'user_sales', to: 'purchases#sold_index'
+  post 'buyer_score', to: 'purchases#set_buyer_score'
+  post 'seller_score', to: 'purchases#set_seller_score'
+  post 'purchase_shipped', to: 'purchases#set_was_shipped'
+  post 'purchase_delivered', to: 'purchases#set_was_delivered'
 
 end
