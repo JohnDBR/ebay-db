@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :update, :destroy]
-  skip_before_action :get_current_user, only: [:index, :show, :create] 
+  before_action :set_user, only: [:show, :update, :destroy, :seller_score, :buyer_score]
+  skip_before_action :get_current_user, only: [:index, :show, :create, :seller_score, :buyer_score] 
 
   def index 
     render_ok User.all
@@ -35,6 +35,24 @@ class UsersController < ApplicationController
       end
     else
       render json: {authorization: 'we have to preserve the history of the web page'}, status: :unprocessable_entity
+    end
+  end
+
+  def seller_score
+    sold_products = @user.sold_products
+    if (score = sold_products.inject{ |sum, element| sum + element }.to_f / sold_products.size).nan?
+      render_ok 0
+    else 
+      render_ok score
+    end
+  end
+
+  def buyer_score
+    bought_products = @user.bought_products
+    if (score = bought_products.inject{ |sum, element| sum + element }.to_f / bought_products.size).nan?
+      render_ok 0
+    else 
+      render_ok score
     end
   end
 

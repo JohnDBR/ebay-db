@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   resources :users, only: [:index, :show, :create, :update, :destroy]
   # get 'users/:id', to: 'users#show' #What the code up do...
+  get 'user_seller_score', to: 'users#seller_score'
+  get 'user_buyer_score', to: 'users#buyer_score'
   namespace :users do
     get ':user_id/block', to: 'admins#block'
     get ':user_id/unblock', to: 'admins#unblock'
