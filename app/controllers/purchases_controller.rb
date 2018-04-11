@@ -43,23 +43,25 @@ class PurchasesController < ApplicationController
   end
 
   def create
-    purchase = nil 
-    proceed = is_the_destiny_mine?
-    if @product.is_auction and proceed
-      purchase = Purchase.new(buyer_id:@current_user.id, seller_id:@product.user.id, quantity:@product.stock, total_price:@product.bids.last, destiny:)
-      @product.update_attribute(:stock, 0)
-    elsif @product.stock >= params[:quantity] and proceed
-      purchase = Purchase.new(buyer_id:@current_user.id, seller_id:@product.user.id, quantity:params[:quantity], total_price:(@product.price*params[:quantity]), destiny:)
+    if !@product.is_auction and @product.stock >= params[:quantity] and is_the_destiny_mine?
+      purchase = Purchase.new(buyer_id:@current_user.id, seller_id:@product.user.id, quantity:params[:quantity], total_price:(@product.price*params[:quantity]), destiny:params[:destiny])
       @product.update_attribute(:stock, stock - params[:quantity])
-    elsif proceed
-      render json: {authorization: 'ingress a valid quantity'}, status: :unprocessable_entity
-    else
-      render json: {authorization: 'ingress a valid destiny'}, status: :unprocessable_entity
-    end
-    if purchase
       if_save_succeeds(purchase, options) do |object|
         render json: {purchase: purchase, product: @product}, status: :ok
       end
+    elsif
+      render json: {authorization: 'ingress a valid quantity'}, status: :unprocessable_entity
+    end
+  end
+
+  def finish_auction
+    if is_my_sale? and @product.is_auction
+      bids = @product.bids
+      purchase = Purchase.new(buyer_id:bids.last.user_id, seller_id:@current_user.id, quantity:@product.stock, total_price:bids.last, destiny:params[:destiny])
+      @product.update_attribute(:stock, 0)
+      if_save_succeeds(purchase, options) do |object|
+        render json: {purchase: purchase, product: @product}, status: :ok
+      end    
     end
   end
 
@@ -81,7 +83,11 @@ class PurchasesController < ApplicationController
   end
 
   def is_the_destiny_mine?
-    Origin.find(params[:destiny]).user_id == @current_user.id  
+    if Origin.find(params[:destiny]).user_id == @current_user.id 
+     true 
+    else
+      render json: {authorization: 'ingress a valid destiny'}, status: :unprocessable_entity 
+    end
   end
 
   def valid_score?(score)
