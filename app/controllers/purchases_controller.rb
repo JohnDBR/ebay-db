@@ -15,16 +15,20 @@ class PurchasesController < ApplicationController
   end
 
   def set_buyer_score
-    if is_my_sale? and valid_score? params[:buyer_score]
-      @purchase.update_attribute(:buyer_score, params[:buyer_score])
-      save_and_render @purchase
+    if is_my_sale? 
+      if valid_score? params[:buyer_score]
+        @purchase.update_attribute(:buyer_score, params[:buyer_score])
+        save_and_render @purchase
+      end
     end
   end
 
   def set_seller_score
-    if is_my_purchase? and valid_score? params[:seller_score]
-      @purchase.update_attribute(:seller_score, params[:seller_score])
-      save_and_render @purchase
+    if is_my_purchase? 
+      if valid_score? params[:seller_score]
+        @purchase.update_attribute(:seller_score, params[:seller_score])
+        save_and_render @purchase
+      end
     end
   end
 
@@ -62,12 +66,16 @@ class PurchasesController < ApplicationController
 
   def finish_auction
     if is_my_sale? and is_an_auction?
-      bids = @product.bids
-      purchase = Purchase.new(buyer_id:bids.last.user_id, seller_id:@current_user.id, quantity:@product.stock, total_price:bids.last)
-      @product.update_attribute(:stock, 0)
-      if_save_succeeds(purchase, options) do |object|
-        render json: {purchase: purchase, product: @product}, status: :ok
-      end    
+      last_bid = @product.bids.last
+      if last_bid.empty?
+        purchase = Purchase.new(buyer_id:last_bid.user_id, seller_id:@current_user.id, quantity:@product.stock, total_price:last_bid.bid)
+        @product.update_attribute(:stock, 0)
+        if_save_succeeds(purchase, options) do |object|
+          render json: {purchase: purchase, product: @product}, status: :ok
+        end  
+      else 
+        render json: {authorization: 'is not a bid'}, status: :unprocessable_entity
+      end
     end
   end
 
@@ -85,7 +93,7 @@ class PurchasesController < ApplicationController
   end
 
   def is_my_purchase?
-    if @purchase.buyer_id == @current_user.id then true else permissions_error end
+    if @purchase.buyer_id == @current_user.id then true else permissions_error ; false end
   end
 
   def is_the_destiny_mine?
@@ -106,6 +114,7 @@ class PurchasesController < ApplicationController
       true 
     else 
       render json: {authorization: 'ingress a value between 1 and 5'}, status: :unprocessable_entity
+      false
     end
   end
 end
