@@ -43,21 +43,27 @@ class PurchasesController < ApplicationController
   end
 
   def create
-    if !@product.is_auction and @product.stock >= params[:quantity] and is_the_destiny_mine?
-      purchase = Purchase.new(buyer_id:@current_user.id, seller_id:@product.user.id, quantity:params[:quantity], total_price:(@product.price*params[:quantity]), destiny:params[:destiny])
-      @product.update_attribute(:stock, stock - params[:quantity])
-      if_save_succeeds(purchase, options) do |object|
-        render json: {purchase: purchase, product: @product}, status: :ok
+    if !@product.is_auction 
+      if is_the_destiny_mine?
+        if @product.stock >= params[:quantity]
+          purchase = Purchase.new(buyer_id:@current_user.id, seller_id:@product.user.id, product_id:@product.id, quantity:params[:quantity], total_price:(@product.price*params[:quantity]), destiny:@origin)
+          @product.update_attribute(:stock, @product.stock - params[:quantity])
+          if purchase.save and @product.save
+            render json: {purchase: purchase, product: @product}, status: :ok
+          else
+            render json: {purchase_errors:purchase.errors.messages, product_errors:@product.errors.messages}, status: :unprocessable_entity
+          end
+        else 
+          render json: {authorization: 'ingress a valid quantity'}, status: :unprocessable_entity
+        end
       end
-    elsif
-      render json: {authorization: 'ingress a valid quantity'}, status: :unprocessable_entity
     end
   end
 
   def finish_auction
-    if is_my_sale? and @product.is_auction
+    if is_my_sale? and is_an_auction?
       bids = @product.bids
-      purchase = Purchase.new(buyer_id:bids.last.user_id, seller_id:@current_user.id, quantity:@product.stock, total_price:bids.last, destiny:params[:destiny])
+      purchase = Purchase.new(buyer_id:bids.last.user_id, seller_id:@current_user.id, quantity:@product.stock, total_price:bids.last)
       @product.update_attribute(:stock, 0)
       if_save_succeeds(purchase, options) do |object|
         render json: {purchase: purchase, product: @product}, status: :ok
@@ -83,11 +89,16 @@ class PurchasesController < ApplicationController
   end
 
   def is_the_destiny_mine?
-    if Origin.find(params[:destiny]).user_id == @current_user.id 
-     true 
+    if (@origin = Origin.find(params[:destiny])).user_id == @current_user.id 
+      true 
     else
       render json: {authorization: 'ingress a valid destiny'}, status: :unprocessable_entity 
+      false
     end
+  end
+
+  def is_an_auction?
+    if @product.is_auction then true else permissions_error ; false end
   end
 
   def valid_score?(score)
