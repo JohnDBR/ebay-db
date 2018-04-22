@@ -1,0 +1,37 @@
+---
+
+development:
+  
+	cloud_name: johndbr
+  
+	api_key: '766272137937424'
+  		
+	api_secret: mE2v7t0guCrfjXvXAp-ByUwvZ9M
+  
+	enhance_image_tag: true
+  
+	static_image_support: false
+	
+production:
+  
+	cloud_name: johndbr
+  
+	api_key: '766272137937424'
+  
+	api_secret: mE2v7t0guCrfjXvXAp-ByUwvZ9M
+  
+	enhance_image_tag: true
+  
+	static_image_support: true
+
+test:
+  
+	cloud_name: johndbr
+  
+	api_key: '766272137937424'
+  
+	api_secret: mE2v7t0guCrfjXvXAp-ByUwvZ9M
+  
+	enhance_image_tag: true
+  
+	static_image_support: false
