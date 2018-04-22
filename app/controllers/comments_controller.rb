@@ -4,7 +4,7 @@ class CommentsController < ApplicationController
   skip_before_action :get_current_user, only: [:index, :show]
 
   def index
-    render_ok @product.comments 
+    render json: @product.comments.to_json(:include => { :user => {:only => :username} }), status: :ok 
   end
 
   def user_index

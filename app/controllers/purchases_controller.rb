@@ -68,7 +68,7 @@ class PurchasesController < ApplicationController
   def finish_auction
     if im_selling?
       if is_an_auction?
-        pp last_bid = @product.bids
+        last_bid = @product.bids
         if !last_bid.empty?
           last_bid = last_bid.last
           purchase = Purchase.new(buyer_id:last_bid.user_id, seller_id:@current_user.id, quantity:@product.stock, total_price:last_bid.bid)
