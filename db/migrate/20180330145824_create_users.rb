@@ -9,7 +9,7 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.string :email
       t.date :birthdate
       t.integer :gender, default: 0
-      # t.integer :picture_id
+      t.integer :picture_id
 
       t.timestamps
     end

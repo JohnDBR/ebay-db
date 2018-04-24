@@ -6,6 +6,7 @@ class User < ApplicationRecord
 
   before_save :format_downcase
 
+  belongs_to :picture, optional: true
   has_one :block, dependent: :destroy
   has_many :tokens, dependent: :destroy
   has_many :origins, dependent: :destroy
@@ -15,7 +16,6 @@ class User < ApplicationRecord
   has_many :sold_products, :class_name => 'Purchase', :foreign_key => 'seller_id'
   has_many :bought_products, :class_name => 'Purchase', :foreign_key => 'buyer_id'
 
-  
   protected 
   def format_downcase
     self.name.downcase!

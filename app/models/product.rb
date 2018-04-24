@@ -4,6 +4,7 @@ class Product < ApplicationRecord
   before_save :format_downcase
 
   belongs_to :user
+  belongs_to :cover, optional: true, :class_name => 'Picture'
   has_one :origin
   has_many :bids, dependent: :destroy 
   has_many :comments, dependent: :destroy
