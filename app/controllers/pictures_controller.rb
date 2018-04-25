@@ -1,13 +1,14 @@
 class PicturesController < ApplicationController
   before_action :set_picture, only: [:destroy]
   before_action :set_product, only: [:cover]
+  before_action :set_product_picture, only: [:set_picture_as_cover]
 
   def profile
     trans = Transmission.new
     if trans.create_picture(params)
       if @current_user.picture then @current_user.picture.destroy end 
       @current_user.update_attribute(:picture_id, trans.picture.id) 
-      save_and_render @current_user #render bla bla...
+      save_and_render @current_user 
     else
       render json: trans.errors, status: :unprocessable_entity
     end
@@ -18,14 +19,18 @@ class PicturesController < ApplicationController
       if picture_does_not_have_purchases?(@product.cover)
         trans = Transmission.new
         if trans.create_picture(params)
-          # @product.cover.destroy
+          prod_pic = ProductPicture.create(picture_id:trans.picture.id, product_id:@product.id)    
           @product.update_attribute(:picture_id, trans.picture.id) 
-          save_and_render @product #render bla bla...
+          save_and_render @product 
         else
           render json: trans.errors, status: :unprocessable_entity
         end
       end
     end
+  end
+
+  def set_picture_as_cover
+
   end
 
   def destroy
@@ -41,12 +46,9 @@ class PicturesController < ApplicationController
     @product = Product.find params[:product_id]
   end
 
-  # def create_picture
-  #   file_name = Picture.set_name
-  #   upload_response = Cloudinary::Uploader.upload(params[:image], :public_id => file_name)
-  #   @picture = Picture.new(name:file_name, url:upload_response["url"])
-  #   if @picture.save then return true else render json: {error: 'upload fail'}, status: :unprocessable_entity ; return false end
-  # end
+  def set_product_picture
+    @product_picture = ProductPicture.find params[:product_picture_id]
+  end
 
   def picture_does_not_have_purchases?(picture)
     return true unless picture

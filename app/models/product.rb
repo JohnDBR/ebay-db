@@ -9,6 +9,7 @@ class Product < ApplicationRecord
   has_many :bids, dependent: :destroy 
   has_many :comments, dependent: :destroy
   has_many :purchases
+  has_many :product_picture, dependent: :destroy
 
   def as_json(*)
     json = super
