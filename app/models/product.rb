@@ -10,8 +10,24 @@ class Product < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :purchases
 
+  def as_json(*)
+    if self.is_auction
+     if !self.bids.empty?
+        super.tap do |hash|
+          hash["last_bid"] = self.bids.last.bid
+        end
+      else 
+        super.tap do |hash|
+          hash["last_bid"] = nil
+        end
+      end 
+    else 
+      super
+    end
+  end
+
   protected
-    def format_downcase
+  def format_downcase
     self.name.downcase!
     self.shipping_description.downcase!
     self.description.downcase!
