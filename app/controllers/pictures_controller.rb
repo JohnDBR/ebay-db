@@ -3,8 +3,8 @@ class PicturesController < ApplicationController
   before_action :set_product, only: [:cover]
 
   def profile 
-    @current_user.picture.destroy
     if create_picture
+      if @current_user.picture then @current_user.picture.destroy end 
       @current_user.update_attribute(:picture_id, @picture.id) 
       save_and_render @current_user #render bla bla...
     end
@@ -12,7 +12,7 @@ class PicturesController < ApplicationController
 
   def cover
     if is_my_product?
-      if picture_does_not_have_purchases?
+      if picture_does_not_have_purchases?(@product.cover)
         if create_picture
           # @product.cover.destroy
           @product.update_attribute(:picture_id, @picture.id) 
@@ -32,7 +32,7 @@ class PicturesController < ApplicationController
   end
 
   def set_product
-    @product = Product.find params[:id]
+    @product = Product.find params[:product_id]
   end
 
   def create_picture
@@ -42,9 +42,9 @@ class PicturesController < ApplicationController
     if @picture.save then return true else render json: {error: 'upload fail'}, status: :unprocessable_entity ; return false end
   end
 
-  def picture_does_not_have_purchases?
-
-  end
+  def picture_does_not_have_purchases?(picture)
+    return true unless picture
+    Product.where(picture_id: picture.id).includes(:purchases).first.purchases.empty? #sobra....
 
   def is_my_product?
     if @product.user_id == @current_user.id then true else permissions_error ; false end

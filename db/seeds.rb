@@ -60,7 +60,7 @@ Origin.create(
     )
 
 Product.create(
-    name:"arroz wolo", 
+    name:"arroz", 
     description:"arroz de coco por sacos", 
     category:0, 
     shipping_description:"no mando pa' australia", 
@@ -85,3 +85,28 @@ Product.create(
     is_auction:false
     )
 
+Product.create(
+    name:"yuca", 
+    description:"deliciosa yuca colombiana", 
+    category:0, 
+    shipping_description:"solo colombia joven", 
+    origin_id:2, 
+    user_id:2, 
+    stock:10, 
+    price:20000.0, 
+    is_used:false, 
+    is_auction:true
+    )
+
+Product.create(
+    name:"asus", 
+    description:"portatil asus", 
+    category:3, 
+    shipping_description:"solo colombia", 
+    origin_id:2, 
+    user_id:2, 
+    stock:2, 
+    price:2500000.0, 
+    is_used:false, 
+    is_auction:false
+    )

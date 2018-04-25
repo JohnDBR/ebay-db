@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-  resources :users, only: [:index, :show, :create, :update, :destroy]
+  resources :users, only: [:index, :show, :create, :update, :destroy] 
   # get 'users/:id', to: 'users#show' #What the code up do...
   get 'user_seller_score/:id', to: 'users#seller_score'
   get 'user_buyer_score/:id', to: 'users#buyer_score'
@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     resources :bids, only: [:index, :create]
     resources :purchases, only: [:create]
     post 'auctions', to: 'purchases#finish_auction'
+    put 'cover_pictures', to: 'pictures#cover'
   end
 
   resources :comments, only: [:show, :destroy]
@@ -35,4 +36,5 @@ Rails.application.routes.draw do
   put 'purchase_shipped/:id', to: 'purchases#set_was_shipped'
   put 'purchase_delivered/:id', to: 'purchases#set_was_delivered'
 
+  put 'profile_pictures', to: 'pictures#profile'
 end
