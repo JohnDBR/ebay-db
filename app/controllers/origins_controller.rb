@@ -22,7 +22,11 @@ class OriginsController < ApplicationController
   end
 
   def destroy
-    render_ok @origin.destroy if is_my_origin? and is_not_a_product_associated?
+    if is_my_origin?
+      if is_not_a_product_associated?
+        render_ok @origin.destroy
+      end
+    end
   end
 
   private 
@@ -35,7 +39,7 @@ class OriginsController < ApplicationController
   end
 
   def is_not_a_product_associated?
-    if Product.Where(origin:@origin).empty?
+    if Product.where(origin_id:@origin.id).empty?
       true
     else
       render json: {authorization: 'You can not edit/destroy origin with products associated'}, status: :unprocessable_entity
@@ -44,7 +48,7 @@ class OriginsController < ApplicationController
 
   def is_not_a_purchase_associated?
     render = false
-    Product.where(origin:@origin).map { |product| if !product.purchases.empty? then render = true ; break end }
+    Product.where(origin_id:@origin.id).map { |product| if !product.purchases.empty? then render = true ; break end }
     if !render
       true 
     else  
