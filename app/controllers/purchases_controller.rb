@@ -62,6 +62,8 @@ class PurchasesController < ApplicationController
           render json: {authorization: 'ingress a valid quantity'}, status: :unprocessable_entity
         end
       end
+    else
+      render json: {authorization: 'product is an auction'}, status: :unprocessable_entity 
     end
   end
 
