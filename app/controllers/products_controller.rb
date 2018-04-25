@@ -1,5 +1,5 @@
 class ProductsController < ApplicationController
-  before_action :set_product, only: [:show, :update, :destroy, :bid]
+  before_action :set_product, only: [:show, :update, :destroy]
   skip_before_action :get_current_user, only: [:index, :show] 
 
   def index
@@ -46,6 +46,7 @@ class ProductsController < ApplicationController
       true 
     else  
       render json: {authorization: 'You can not edit/destroy products that users already bought, we have to preserve the history'}, status: :unprocessable_entity
+      false
     end
   end
 
