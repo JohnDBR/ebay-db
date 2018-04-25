@@ -11,8 +11,18 @@ class ProductsController < ApplicationController
   end
 
   def create
+    trans = Transmission.new
     product = Product.new({user:@current_user}.merge product_params)
-    save_and_render product
+    if product.save 
+      if trans.create_picture(params)
+        product.update_attribute(:picture_id, trans.picture.id)  
+        render_ok product
+      else
+        render json: trans.errors, status: :unprocessable_entity
+      end
+    else
+      render json: product.errors, status: :unprocessable_entity
+    end
   end
 
   def update

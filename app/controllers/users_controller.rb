@@ -11,8 +11,18 @@ class UsersController < ApplicationController
   end
 
   def create
+    trans = Transmission.new
     user = User.new user_params
-    save_and_render user
+    if user.save 
+      if trans.create_picture(params)
+        user.update_attribute(:picture_id, trans.picture.id)  
+        render_ok user
+      else
+        render json: trans.errors, status: :unprocessable_entity
+      end
+    else
+      render json: user.errors, status: :unprocessable_entity
+    end
   end
 
   def update 
