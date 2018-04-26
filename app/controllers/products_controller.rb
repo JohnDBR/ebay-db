@@ -15,12 +15,8 @@ class ProductsController < ApplicationController
     was_saved = product.save 
     if was_saved
       trans = Transmission.new
-      trans.create_pictures(params)
-      if !trans.pictures.empty?
-        trans.pictures.each do |key, options| 
-          ProductPicture.create(picture_id:options.id, product_id:product.id) 
-          if key.eql?("cover") then product.update_attribute(:picture_id, options.id) end
-        end
+      trans.create_pictures(params, product)
+      if !trans.pictures.empty? or trans.empty_params
         render_ok product
       else render json: trans.errors, status: :unprocessable_entity end
     else render json: product.errors, status: :unprocessable_entity end

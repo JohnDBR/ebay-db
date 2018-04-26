@@ -20,7 +20,7 @@ Rails.application.routes.draw do
     resources :bids, only: [:index, :create]
     resources :purchases, only: [:create]
     post 'auctions', to: 'purchases#finish_auction'
-    put 'cover_pictures', to: 'pictures#cover'
+    put 'upload_pictures', to: 'pictures#product'
   end
 
   resources :comments, only: [:show, :destroy]

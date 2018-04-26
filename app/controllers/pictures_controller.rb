@@ -1,30 +1,25 @@
 class PicturesController < ApplicationController
   before_action :set_picture, only: [:destroy]
-  before_action :set_product, only: [:cover]
+  before_action :set_product, only: [:product]
   before_action :set_product_picture, only: [:set_picture_as_cover]
 
   def profile
     trans = Transmission.new
-    if trans.create_picture(params)
-      if @current_user.picture then @current_user.picture.destroy end 
-      @current_user.update_attribute(:picture_id, trans.picture.id) 
+    if trans.create_picture(params, @current_user)
       save_and_render @current_user 
     else
       render json: trans.errors, status: :unprocessable_entity
     end
   end
 
-  def cover
+  def product
     if is_my_product?
       if picture_does_not_have_purchases?(@product.cover)
         trans = Transmission.new
-        if trans.create_picture(params)
-          prod_pic = ProductPicture.create(picture_id:trans.picture.id, product_id:@product.id)    
-          @product.update_attribute(:picture_id, trans.picture.id) 
-          save_and_render @product 
-        else
-          render json: trans.errors, status: :unprocessable_entity
-        end
+        trans.create_pictures(params, @product)
+        if !trans.pictures.empty? and !trans.empty_params
+          render_ok @product
+        else render json: trans.errors, status: :unprocessable_entity end
       end
     end
   end
@@ -52,7 +47,12 @@ class PicturesController < ApplicationController
 
   def picture_does_not_have_purchases?(picture)
     return true unless picture
-    Product.where(picture_id: picture.id).includes(:purchases).first.purchases.empty? #sobra....
+    if Product.where(picture_id: picture.id).includes(:purchases).first.purchases.empty? #sobra....
+      true
+    else
+      render json: {authorization: 'You can not edit/destroy products that users already bought, we have to preserve the history'}, status: :unprocessable_entity
+      false
+    end
   end
 
   def is_my_product?
