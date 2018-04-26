@@ -1,7 +1,7 @@
 class PicturesController < ApplicationController
   before_action :set_picture, only: [:destroy]
-  before_action :set_product, only: [:product]
-  before_action :set_product_picture, only: [:set_picture_as_cover]
+  before_action :set_product, only: [:product, :index]
+  before_action :set_product_picture, only: [:set_picture_as_cover, :destroy]
 
   def profile
     trans = Transmission.new
@@ -25,11 +25,29 @@ class PicturesController < ApplicationController
   end
 
   def set_picture_as_cover
+    if is_my_product?
+      if @product.purchases.empty?
+        @product.update_attribute(:picture_id, @picture.id)
+        render_ok @product
+      else 
+        render json: {authorization: 'You can not edit/destroy products that users already bought, we have to preserve the history'}, status: :unprocessable_entity
+      end
+    end
+  end
 
+  def index
+    render_ok @product.product_picture
   end
 
   def destroy
-    render_ok @picture.destroy
+    if is_my_product?
+      if @product.purchases.empty?
+        @product_picture.destroy
+        render_ok @picture.destroy
+      else        
+        render json: {authorization: 'You can not edit/destroy products that users already bought, we have to preserve the history'}, status: :unprocessable_entity
+      end
+    end
   end
 
   private
@@ -43,6 +61,8 @@ class PicturesController < ApplicationController
 
   def set_product_picture
     @product_picture = ProductPicture.find params[:product_picture_id]
+    @product = Product.find @product_picture.product_id
+    @picture = Picture.find @product_picture.picture_id
   end
 
   def picture_does_not_have_purchases?(picture)

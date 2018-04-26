@@ -21,6 +21,8 @@ Rails.application.routes.draw do
     resources :purchases, only: [:create]
     post 'auctions', to: 'purchases#finish_auction'
     put 'upload_pictures', to: 'pictures#product'
+    delete 'product_picture/:product_picture_id', to: 'pictures#destroy'
+    resources :pictures, only: [:index]
   end
 
   resources :comments, only: [:show, :destroy]
@@ -37,4 +39,5 @@ Rails.application.routes.draw do
   put 'purchase_delivered/:id', to: 'purchases#set_was_delivered'
 
   put 'profile_pictures', to: 'pictures#profile'
+  put 'product_picture/:product_picture_id/set_cover', to: 'pictures#set_picture_as_cover'
 end
