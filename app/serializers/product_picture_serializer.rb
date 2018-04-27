@@ -1,5 +1,5 @@
 class ProductPictureSerializer < ActiveModel::Serializer
-  attributes :id, :picture
+  attributes :id, :picture, :created_at, :updated_at
 
   # belongs_to :picture
   def picture
