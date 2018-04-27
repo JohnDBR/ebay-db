@@ -16,11 +16,11 @@ class User < ApplicationRecord
   has_many :sold_products, :class_name => 'Purchase', :foreign_key => 'seller_id'
   has_many :bought_products, :class_name => 'Purchase', :foreign_key => 'buyer_id'
 
-  def as_json(*)
-    super.tap do |hash|
-      hash["profile_picture"] = self.picture
-    end   
-  end
+  # def as_json(*)
+  #   super.tap do |hash|
+  #     hash["profile_picture"] = self.picture
+  #   end   
+  # end
 
   protected 
   def format_downcase
