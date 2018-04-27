@@ -1,6 +1,6 @@
 class PurchasesController < ApplicationController
   before_action :set_purchase, only: [:show, :set_buyer_score, :set_seller_score, :set_was_shipped, :set_was_delivered]
-  before_action :set_product, only: [:create, :finish_auction]
+  before_action :set_product, only: [:finish_auction]
 
   def index
     render_ok @current_user.bought_products
@@ -47,23 +47,38 @@ class PurchasesController < ApplicationController
   end
 
   def create
-    if !@product.is_auction 
-      if is_the_destiny_mine?
-        # !params[:quantity].nil?
-        if @product.stock >= params[:quantity] 
-          purchase = Purchase.new(buyer_id:@current_user.id, seller_id:@product.user.id, product_id:@product.id, quantity:params[:quantity], total_price:(@product.price*params[:quantity]), destiny:@origin)
-          @product.update_attribute(:stock, @product.stock - params[:quantity])
-          if purchase.save and @product.save
-            render json: {purchase: purchase, product: @product}, status: :ok
+    errors = {}
+    result = []
+    params.each do |key, options|
+      if key.include?("product")
+        options = JSON.parse(options)
+        @product = Product.find options["product_id"]
+        if !@product.is_auction 
+          if is_the_destiny_mine?(options)
+            if @product.stock >= options["quantity"] 
+              purchase = Purchase.new(buyer_id:@current_user.id, seller_id:@product.user.id, product_id:@product.id, quantity:options["quantity"], total_price:(@product.price*options["quantity"]), destiny:@origin)
+              @product.update_attribute(:stock, @product.stock - options["quantity"])
+              if purchase.save and @product.save
+                result << Array.new([purchase, @product])
+              else
+                errors[transaction_errors] = Array.new([purchase.errors.messages, @product.errors.messages])
+              end
+            else 
+              errors["product#{options["product_id"]}"] = "ingress a valid quantity" 
+            end
           else
-            render json: {purchase_errors:purchase.errors.messages, product_errors:@product.errors.messages}, status: :unprocessable_entity
+            errors["product#{options["product_id"]}"] = "the destiny is not mine" 
           end
-        else 
-          render json: {authorization: 'ingress a valid quantity'}, status: :unprocessable_entity
+        else
+          errors["product#{options["product_id"]}"] = "product is an auction" 
         end
       end
+    end
+    if result.empty?
+      errors["empty_params"] = 'not enough arguments.' 
+      render json: errors, status: :unprocessable_entity 
     else
-      render json: {authorization: 'product is an auction'}, status: :unprocessable_entity 
+      render json: {result: result, errors: errors}, status: :ok 
     end
   end
 
@@ -106,13 +121,9 @@ class PurchasesController < ApplicationController
     if @purchase.buyer_id == @current_user.id then true else permissions_error ; false end
   end
 
-  def is_the_destiny_mine?
-    if (@origin = Origin.find(params[:destiny])).user_id == @current_user.id 
-      true 
-    else
-      render json: {authorization: 'ingress a valid destiny'}, status: :unprocessable_entity 
-      false
-    end
+  def is_the_destiny_mine?(options)
+    # pp origin_id = params[:destiny] or 
+    (@origin = Origin.find(options["destiny"])).user_id == @current_user.id 
   end
 
   def is_an_auction?
