@@ -11,34 +11,6 @@ class Product < ApplicationRecord
   has_many :purchases
   has_many :product_picture, dependent: :destroy
 
-  # def as_json(*)
-  #   json = super
-  #   if self.cover
-  #     json = json.tap do |hash|
-  #       hash["cover_url"] = self.cover.url
-  #     end   
-  #   else
-  #     json = json.tap do |hash|
-  #       hash["cover_url"] = nil
-  #     end
-  #   end
-  #   if self.is_auction
-  #     if !self.bids.empty?
-  #       json = json.tap do |hash|
-  #         hash["last_bid"] = self.bids.last.bid
-  #       end
-  #     else 
-  #       json = json.tap do |hash|
-  #         hash["last_bid"] = nil
-  #       end
-  #     end 
-  #   end
-  #   json = json.tap do |hash|
-  #     hash["origin"] = self.origin
-  #   end
-  #   return json
-  # end
-
   protected
   def format_downcase
     self.name.downcase!
