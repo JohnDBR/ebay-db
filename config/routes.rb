@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   # get 'users/:id', to: 'users#show' #What the code up do...
   get 'user_seller_score/:id', to: 'users#seller_score'
   get 'user_buyer_score/:id', to: 'users#buyer_score'
+  get 'pending_actions', to: 'users#pending_actions'
   namespace :users do
     get ':user_id/block', to: 'admins#block'
     get ':user_id/unblock', to: 'admins#unblock'

@@ -50,8 +50,12 @@ class UsersController < ApplicationController
 
   def seller_score
     sold_products = @user.sold_products
-    if (score = sold_products.inject{ |sum, element| sum + element }.to_f / sold_products.size).nan?
-      render_ok 0
+    score = sold_products.inject(0) do |sum, element| 
+      sum + if element.seller_score.nil? then 0 else element.seller_score end  
+    end
+    score = score.to_f / sold_products.inject(0){ |sum, element| sum + if element.seller_score.nil? then 0 else 1 end }
+    if score.nan?
+       render json: {authorization: 'no history to score'}, status: :unprocessable_entity
     else 
       render_ok score
     end
@@ -59,11 +63,51 @@ class UsersController < ApplicationController
 
   def buyer_score
     bought_products = @user.bought_products
-    if (score = bought_products.inject{ |sum, element| sum + element }.to_f / bought_products.size).nan?
-      render_ok 0
+    score = bought_products.inject(0) do |sum, element| 
+      sum + if element.buyer_score.nil? then 0 else element.buyer_score end  
+    end
+    score = score.to_f / bought_products.inject(0){ |sum, element| sum + if element.buyer_score.nil? then 0 else 1 end }
+    if score.nan?
+      render json: {authorization: 'no history to score'}, status: :unprocessable_entity
     else 
       render_ok score
     end
+  end
+
+  def pending_actions
+    actions = {}
+    @current_user.sold_products.map do |sold_product|
+      if sold_product.was_shipped
+        if sold_product.was_delivered
+          if sold_product.buyer_score.nil?
+            actions["sold_product#{sold_product.id}"] = "score the buyer"
+          end
+        else
+          actions["sold_product#{sold_product.id}"] = "you sent the product, wating deliver confirmation."
+        end
+      else
+        actions["sold_product#{sold_product.id}"] = "send the product please, an user bought it."
+      end
+    end
+    @current_user.bought_products.map do |bought_product|
+      if bought_product.was_shipped
+        if bought_product.was_delivered
+          if bought_product.seller_score.nil?
+            actions["bought_product#{bought_product.id}"] = "score the seller"
+          end
+        else
+          actions["bought_product#{bought_product.id}"] = "do you recived the product?"
+        end
+      else
+          actions["bought_product#{bought_product.id}"] = "you bought the product, wait shipping confirmation."
+      end
+    end
+    Product.where(user_id:@current_user.id, is_auction:true).map do |product|
+      if !product.bids.empty?
+        actions["product_auction#{product.id}"] = "finish auction?. #{product.bids.length} bids were made."
+      end  
+    end      
+    render json: actions, status: :ok
   end
 
   private 
