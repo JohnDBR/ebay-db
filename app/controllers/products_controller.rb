@@ -50,11 +50,20 @@ class ProductsController < ApplicationController
     if !params[:input].nil?
       params[:input] = params[:input].downcase if params[:input].is_a?(String)
       users = User.search(params[:input])
-      products = Product.search(params[:input])
+      # products = Product.search(params[:input])
+      products = if params[:input].is_a?(String) then
+        if params[:input].include?("auction") or params[:input].include?("auctions") then
+          Product.where(is_auction:true).order("created_at DESC")
+        else
+          Product.search(params[:input])
+        end
+      else
+        Product.search(params[:input])
+      end
     end
     if !params[:price_range].nil? and !products.nil?
       price_range = params[:price_range].split("-")
-      products_price_range = products.where("price BETWEEN ? AND ?", price_range[0],  price_range[1])
+      products_price_range = products.where("price BETWEEN ? AND ?", price_range[0],  price_range[1]).order("created_at DESC")
     end
     if !users.nil? and !products.nil?
       render json: {

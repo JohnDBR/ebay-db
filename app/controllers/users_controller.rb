@@ -7,7 +7,10 @@ class UsersController < ApplicationController
   end
 
   def show
-    render_ok @user
+    render json: {
+      user: UserSerializer.new(@user),  
+      product: ActiveModel::Serializer::CollectionSerializer.new(@user.products, serializer: ProductSerializer)
+    }, status: :ok
   end
 
   def create
