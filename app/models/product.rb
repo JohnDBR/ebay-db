@@ -11,6 +11,11 @@ class Product < ApplicationRecord
   has_many :purchases
   has_many :product_picture, dependent: :destroy
 
+  def self.search(search)
+    categ = if categories[search].nil? then search else categories[search] end
+    where("name LIKE ? OR category LIKE ? OR shipping_description LIKE ? OR price LIKE ? OR description LIKE ?", "%#{search}%", "%#{categ}%", "%#{search}%", "%#{search}%", "%#{search}%").order("created_at DESC")
+  end
+
   protected
   def format_downcase
     self.name.downcase!

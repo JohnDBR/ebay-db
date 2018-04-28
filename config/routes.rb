@@ -24,6 +24,7 @@ Rails.application.routes.draw do
     delete 'product_picture/:product_picture_id', to: 'pictures#destroy'
     resources :pictures, only: [:index]
   end
+  post 'search', to: 'products#search'
 
   resources :comments, only: [:show, :destroy]
   get 'user_comments', to: 'comments#user_index'

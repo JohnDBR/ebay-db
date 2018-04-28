@@ -1,6 +1,6 @@
 class ProductsController < ApplicationController
   before_action :set_product, only: [:show, :update, :destroy]
-  skip_before_action :get_current_user, only: [:index, :show] 
+  skip_before_action :get_current_user, only: [:index, :show, :search] 
 
   def index
     render_ok Product.all
@@ -40,7 +40,35 @@ class ProductsController < ApplicationController
       elsif is_current_user_admin.nil?
         render_ok @product.destroy
       end
-   end
+    end
+  end
+
+  def search
+    users = nil
+    products = nil
+    products_price_range = nil
+    if !params[:input].nil?
+      params[:input] = params[:input].downcase if params[:input].is_a?(String)
+      users = User.search(params[:input])
+      products = Product.search(params[:input])
+    end
+    if !params[:price_range].nil? and !products.nil?
+      price_range = params[:price_range].split("-")
+      products_price_range = products.where("price BETWEEN ? AND ?", price_range[0],  price_range[1])
+    end
+    if !users.nil? and !products.nil?
+      render json: {
+        users: ActiveModel::Serializer::CollectionSerializer.new(users, serializer: UserSerializer),  
+        products: ActiveModel::Serializer::CollectionSerializer.new(products, serializer: ProductSerializer),
+        products_price_range: if !products_price_range.nil? then
+          ActiveModel::Serializer::CollectionSerializer.new(products_price_range, serializer: ProductSerializer)
+        else 
+          'No results for price range'
+        end
+        }, status: :ok
+    else
+      render json: {empty: 'no results'}, status: :unprocessable_entity
+    end
   end
 
   private 

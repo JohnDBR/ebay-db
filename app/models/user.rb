@@ -16,6 +16,10 @@ class User < ApplicationRecord
   has_many :sold_products, :class_name => 'Purchase', :foreign_key => 'seller_id'
   has_many :bought_products, :class_name => 'Purchase', :foreign_key => 'buyer_id'
 
+  def self.search(search)
+    where("email LIKE ? OR username LIKE ?", "%#{search}%", "%#{search}%").order("created_at DESC")
+  end
+
   protected 
   def format_downcase
     self.name.downcase!
