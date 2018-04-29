@@ -6,8 +6,8 @@ Rails.application.routes.draw do
   get 'user_buyer_score/:id', to: 'users#buyer_score'
   get 'pending_actions', to: 'users#pending_actions'
   namespace :users do
-    get ':user_id/block', to: 'admins#block'
-    get ':user_id/unblock', to: 'admins#unblock'
+    put ':user_id/block', to: 'admins#block'
+    put ':user_id/unblock', to: 'admins#unblock'
     get 'blocks/admin', to: 'admins#index_block'
   end
 

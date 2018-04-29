@@ -65,6 +65,16 @@ class ProductsController < ApplicationController
       price_range = params[:price_range].split("-")
       products_price_range = products.where("price BETWEEN ? AND ?", price_range[0],  price_range[1]).order("created_at DESC")
     end
+    if !params[:auction].nil? and !products.nil?
+      if params[:auction]
+        products = products.where(is_auction:true).order("created_at DESC")
+      else
+        products = products.where(is_auction:false).order("created_at DESC")
+      end
+    end
+    if !params[:category].nil? and !products.nil?
+        products = products.where(category:params[:category]).order("created_at DESC")
+    end
     if !users.nil? and !products.nil?
       render json: {
         users: ActiveModel::Serializer::CollectionSerializer.new(users, serializer: UserSerializer),  
