@@ -8,4 +8,5 @@ class ProductSerializer < ActiveModel::Serializer
   has_many :bids 
   # has_many :comments
   has_many :product_picture
+  has_one :product_block
 end

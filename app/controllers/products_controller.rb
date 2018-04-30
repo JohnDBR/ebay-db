@@ -23,22 +23,26 @@ class ProductsController < ApplicationController
   end
 
   def update
-    if product_does_not_have_purchases?
-      if @product.user_id == @current_user.id
-        @product.update_attributes product_params 
-        save_and_render @product
-      else
-        permissions_error
+    if product_does_not_have_purchases? 
+      if product_not_blocked?
+        if @product.user_id == @current_user.id
+          @product.update_attributes product_params 
+          save_and_render @product
+        else
+          permissions_error
+        end
       end
     end
   end
 
   def destroy
     if product_does_not_have_purchases?
-      if @product.user_id == @current_user.id
-        render_ok @product.destroy
-      elsif is_current_user_admin.nil?
-        render_ok @product.destroy
+      if product_not_blocked?
+        if @product.user_id == @current_user.id
+          render_ok @product.destroy
+        elsif is_current_user_admin.nil?
+          render_ok @product.destroy
+        end        
       end
     end
   end
@@ -103,6 +107,10 @@ class ProductsController < ApplicationController
       false
     end
   end
+
+  def product_not_blocked?
+    if @product.product_block.nil? then true else render json: {authorization: 'product blocked'}, status: :unprocessable_entity ; false end
+  end 
 
   def product_params
     params.permit(

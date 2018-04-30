@@ -10,6 +10,7 @@ class Product < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :purchases
   has_many :product_picture, dependent: :destroy
+  has_one :product_block, dependent: :destroy
 
   def self.search(search)
     categ = if categories[search].nil? then search else categories[search] end

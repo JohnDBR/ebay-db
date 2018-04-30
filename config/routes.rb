@@ -26,6 +26,11 @@ Rails.application.routes.draw do
     resources :pictures, only: [:index]
   end
   post 'search', to: 'products#search'
+  namespace :products do
+    put ':product_id/block', to: 'admins#block'
+    put ':product_id/unblock', to: 'admins#unblock'
+    get 'blocks/admin', to: 'admins#index_block'
+  end
 
   resources :comments, only: [:show, :destroy]
   get 'user_comments', to: 'comments#user_index'
