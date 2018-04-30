@@ -61,8 +61,8 @@ class PicturesController < ApplicationController
 
   def set_product_picture
     @product_picture = ProductPicture.find params[:product_picture_id]
-    @product = Product.find @product_picture.product_id
-    @picture = Picture.find @product_picture.picture_id
+    @product = Product.find @product_picture.product.id
+    @picture = Picture.find @product_picture.picture.id
   end
 
   def picture_does_not_have_purchases?(picture)
