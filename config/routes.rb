@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     resources :comments, only: [:index, :create]
     resources :bids, only: [:index, :create]
     post 'auctions', to: 'purchases#finish_auction'
+    put 'set_purchase_destination/:origin_id', to: 'purchases#set_destination'
     put 'upload_pictures', to: 'pictures#product'
     delete 'product_picture/:product_picture_id', to: 'pictures#destroy'
     resources :pictures, only: [:index]

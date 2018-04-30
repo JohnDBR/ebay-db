@@ -80,33 +80,41 @@ class UsersController < ApplicationController
   def pending_actions
     actions = {}
     @current_user.sold_products.map do |sold_product|
-      if sold_product.was_shipped
-        if sold_product.was_delivered
-          if sold_product.buyer_score.nil?
-            actions["sold_product#{sold_product.id}"] = "score the buyer"
+      if sold_product.destiny.nil?
+        actions["sold_product#{sold_product.id}"] = "you already finish the auction. wait destination address"
+      else
+        if sold_product.was_shipped
+          if sold_product.was_delivered
+            if sold_product.buyer_score.nil?
+              actions["sold_product#{sold_product.id}"] = "score the buyer"
+            end
+          else
+            actions["sold_product#{sold_product.id}"] = "you sent the product, wating deliver confirmation."
           end
         else
-          actions["sold_product#{sold_product.id}"] = "you sent the product, wating deliver confirmation."
+          actions["sold_product#{sold_product.id}"] = "send the product please, an user bought it."
         end
-      else
-        actions["sold_product#{sold_product.id}"] = "send the product please, an user bought it."
       end
     end
     @current_user.bought_products.map do |bought_product|
-      if bought_product.was_shipped
-        if bought_product.was_delivered
-          if bought_product.seller_score.nil?
-            actions["bought_product#{bought_product.id}"] = "score the seller"
+      if bought_product.destiny.nil?
+        actions["bought_product#{bought_product.id}"] = "you won the auction of the product #{bought_product.product.id}. Enter your destination address"
+      else
+        if bought_product.was_shipped
+          if bought_product.was_delivered
+            if bought_product.seller_score.nil?
+              actions["bought_product#{bought_product.id}"] = "score the seller"
+            end
+          else
+            actions["bought_product#{bought_product.id}"] = "do you recived the product?"
           end
         else
-          actions["bought_product#{bought_product.id}"] = "do you recived the product?"
-        end
-      else
           actions["bought_product#{bought_product.id}"] = "you bought the product, wait shipping confirmation."
+        end
       end
     end
     Product.where(user_id:@current_user.id, is_auction:true).map do |product|
-      if !product.bids.empty?
+      if !product.bids.empty? and product.purchases.empty?
         actions["product_auction#{product.id}"] = "finish auction?. #{product.bids.length} bids were made."
       end  
     end      
