@@ -9,4 +9,9 @@ class ProductSerializer < ActiveModel::Serializer
   # has_many :comments
   has_many :product_picture
   has_one :product_block
+
+  # def filter(keys)
+  #   keys.delete(:avatar) unless options[:with_avatar]
+  #   keys
+  # end
 end

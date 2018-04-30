@@ -4,15 +4,19 @@ class BidsController < ApplicationController
   skip_before_action :get_current_user, only: [:index, :show]
 
   def index
-    render_ok @product.bids 
+    render json: {
+      bids: ActiveModel::Serializer::CollectionSerializer.new(@product.bids, serializer: BidCompleteInfoSerializer)
+    }, status: :ok
   end
 
   def user_index
-    render_ok @current_user.bids
+    render json: {
+      bids: ActiveModel::Serializer::CollectionSerializer.new(@current_user.bids, serializer: BidCompleteInfoSerializer)
+    }, status: :ok
   end
 
   def show 
-    render_ok @bid
+    render json: @bid, serializer: BidCompleteInfoSerializer, status: :ok
   end
 
   def create

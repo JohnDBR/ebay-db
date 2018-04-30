@@ -9,20 +9,26 @@ class Users::AdminsController < ApplicationController
       end
     end
     block = Block.new(user_id:params[:user_id].to_i)
-    save_and_render block
+    if block.save 
+      render json: block, serializer: BlockCompleteInfoSerializer, status: :ok
+    else
+      render json: {errors:block.errors.messages}, stauts: :unprocessable_entity
+    end
   end
 
   def unblock
     block = Block.where(user_id:params[:user_id].to_i).first
     if block
-      render_ok block.destroy
+      render json: block.destroy, serializer: BlockCompleteInfoSerializer, status: :ok
     else
       render json: {authorization: 'user is not blocked'}, status: :unprocessable_entity
     end  
   end
 
   def index_block
-    render_ok Block.all
+    render json: {
+      blocks: ActiveModel::Serializer::CollectionSerializer.new(Block.all, serializer: BlockCompleteInfoSerializer)
+    }, status: :ok
   end
 
   private 
