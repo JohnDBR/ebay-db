@@ -17,8 +17,12 @@ class PurchasesController < ApplicationController
   def set_buyer_score
     if is_my_sale? 
       if valid_score? params[:buyer_score]
-        @purchase.update_attribute(:buyer_score, params[:buyer_score])
-        save_and_render @purchase
+        if was_delivered?
+          if buyer_scored?
+            @purchase.update_attribute(:buyer_score, params[:buyer_score])
+            save_and_render @purchase
+          end
+        end
       end
     end
   end
@@ -26,23 +30,43 @@ class PurchasesController < ApplicationController
   def set_seller_score
     if is_my_purchase? 
       if valid_score? params[:seller_score]
-        @purchase.update_attribute(:seller_score, params[:seller_score])
-        save_and_render @purchase
+        if was_delivered?
+          if seller_scored?
+            @purchase.update_attribute(:seller_score, params[:seller_score])
+            save_and_render @purchase       
+          end
+        end
       end
     end
   end
 
   def set_was_shipped
     if is_my_sale?
-      @purchase.update_attribute(:was_shipped, true)
-      save_and_render @purchase
+      if !@purchase.destiny.nil?
+        if !@purchase.was_shipped
+          @purchase.update_attribute(:was_shipped, true)
+          save_and_render @purchase
+        else
+          render json: {authorization: 'product has been shipped'}, status: :unprocessable_entity 
+        end  
+      else
+        render json: {authorization: 'destiny not set'}, status: :unprocessable_entity
+      end
     end
   end
 
   def set_was_delivered
     if is_my_purchase?
-      @purchase.update_attribute(:was_delivered, true)
-      save_and_render @purchase
+      if @purchase.was_shipped
+        if !@purchase.was_delivered
+          @purchase.update_attribute(:was_delivered, true)
+          save_and_render @purchase
+        else
+          render json: {authorization: 'product has been delivered'}, status: :unprocessable_entity
+        end
+      else
+        render json: {authorization: 'product has not been shipped'}, status: :unprocessable_entity
+      end
     end
   end
 
@@ -50,8 +74,12 @@ class PurchasesController < ApplicationController
     if is_an_auction?
       if is_my_destiny?(params)
         if i_won_the_auction?
-          @purchase.update_attribute(:origin_id, @origin.id)
-          save_and_render @purchase
+          if @purchase.destiny.nil?
+            @purchase.update_attribute(:origin_id, @origin.id)
+            save_and_render @purchase
+          else 
+            render json: {authorization: 'destiny was set'}, status: :unprocessable_entity ; false 
+          end
         end
       end
     end
@@ -72,7 +100,7 @@ class PurchasesController < ApplicationController
               if purchase.save and @product.save
                 result << Array.new([purchase, @product])
               else
-                errors[transaction_errors] = Array.new([purchase.errors.messages, @product.errors.messages])
+                errors["transaction_errors_on_#{key}"] = Array.new([purchase.errors.messages, @product.errors.messages])
               end
             else 
               errors["product#{options["product_id"]}"] = "ingress a valid quantity" 
@@ -159,5 +187,17 @@ class PurchasesController < ApplicationController
       render json: {authorization: 'ingress a value between 1 and 5'}, status: :unprocessable_entity
       false
     end
+  end
+
+  def was_delivered? 
+    if @purchase.was_delivered then true else render json: {authorization: 'product has not been delivered'}, status: :unprocessable_entity ; false end
+  end
+
+  def buyer_scored?
+    if !@purchase.buyer_score.nil? then true else render json: {authorization: 'buyer was scored'}, status: :unprocessable_entity ; false end 
+  end
+
+  def seller_scored?
+    if !@purchase.seller_score.nil? then true else render json: {authorization: 'seller was scored'}, status: :unprocessable_entity ; false end 
   end
 end
