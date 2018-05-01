@@ -1,5 +1,4 @@
 class PicturesController < ApplicationController
-  before_action :set_picture, only: [:destroy]
   before_action :set_product, only: [:product, :index]
   before_action :set_product_picture, only: [:set_picture_as_cover, :destroy]
 
@@ -43,6 +42,9 @@ class PicturesController < ApplicationController
     if is_my_product?
       if @product.purchases.empty?
         @product_picture.destroy
+        if !@product.cover.nil?
+          if @product.cover.id == @picture.id then @product.update_attribute(:picture_id, nil) end
+        end
         render_ok @picture.destroy
       else        
         render json: {authorization: 'You can not edit/destroy products that users already bought, we have to preserve the history'}, status: :unprocessable_entity
@@ -61,8 +63,8 @@ class PicturesController < ApplicationController
 
   def set_product_picture
     @product_picture = ProductPicture.find params[:product_picture_id]
-    @product = Product.find @product_picture.product.id
-    @picture = Picture.find @product_picture.picture.id
+    @product = @product_picture.product
+    @picture = @product_picture.picture
   end
 
   def picture_does_not_have_purchases?(picture)
