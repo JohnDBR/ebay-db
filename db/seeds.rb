@@ -68,8 +68,7 @@ Product.create(
     user_id:2, 
     stock:3, 
     price:19999.0, 
-    is_used:false, 
-    is_auction:true
+    is_used:false
     )
 
 Product.create(
@@ -81,8 +80,7 @@ Product.create(
     user_id:2, 
     stock:30, 
     price:200.0, 
-    is_used:false, 
-    is_auction:false
+    is_used:false
     )
 
 Product.create(
@@ -94,8 +92,7 @@ Product.create(
     user_id:2, 
     stock:10, 
     price:20000.0, 
-    is_used:false, 
-    is_auction:true
+    is_used:false
     )
 
 Product.create(
@@ -107,6 +104,5 @@ Product.create(
     user_id:2, 
     stock:2, 
     price:2500000.0, 
-    is_used:false, 
-    is_auction:false
+    is_used:false
     )

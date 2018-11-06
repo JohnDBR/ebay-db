@@ -18,8 +18,6 @@ Rails.application.routes.draw do
   
   resources :products, only: [:index, :show, :create, :update, :destroy] do 
     resources :comments, only: [:index, :create]
-    resources :bids, only: [:index, :create]
-    post 'auctions', to: 'purchases#finish_auction'
     put 'set_purchase_destination/:origin_id', to: 'purchases#set_destination'
     put 'upload_pictures', to: 'pictures#product'
     resources :pictures, only: [:index]
@@ -33,9 +31,6 @@ Rails.application.routes.draw do
 
   resources :comments, only: [:show, :destroy]
   get 'user_comments', to: 'comments#user_index'
-
-  resources :bids, only: [:show]
-  get 'user_bids', to: 'bids#user_index'
 
   resources :purchases, only: [:index, :show, :create]
   get 'user_sales', to: 'purchases#sold_index'

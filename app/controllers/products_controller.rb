@@ -54,13 +54,8 @@ class ProductsController < ApplicationController
     if !params[:input].nil?
       params[:input] = params[:input].downcase if params[:input].is_a?(String)
       users = User.search(params[:input])
-      # products = Product.search(params[:input])
       products = if params[:input].is_a?(String) then
-        if params[:input].include?("auction") or params[:input].include?("auctions") then
-          Product.where(is_auction:true).order("created_at DESC")
-        else
           Product.search(params[:input])
-        end
       else
         Product.search(params[:input])
       end
@@ -68,13 +63,6 @@ class ProductsController < ApplicationController
     if !params[:price_range].nil? and !products.nil?
       price_range = params[:price_range].split("-")
       products_price_range = products.where("price BETWEEN ? AND ?", price_range[0],  price_range[1]).order("created_at DESC")
-    end
-    if !params[:auction].nil? and !products.nil?
-      if params[:auction]
-        products = products.where(is_auction:true).order("created_at DESC")
-      else
-        products = products.where(is_auction:false).order("created_at DESC")
-      end
     end
     if !params[:category].nil? and !products.nil?
         products = products.where(category:params[:category]).order("created_at DESC")
@@ -121,8 +109,7 @@ class ProductsController < ApplicationController
       :origin_id,
       :stock, 
       :price,
-      :is_used, 
-      :is_auction
+      :is_used
     )
   end
 end

@@ -10,7 +10,6 @@ class CreateProducts < ActiveRecord::Migration[5.1]
       t.integer :stock, default: 1
       t.float :price
       t.boolean :is_used, default: false
-      t.boolean :is_auction, default: false
       t.integer :picture_id
 
       t.timestamps

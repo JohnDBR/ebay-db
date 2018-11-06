@@ -6,7 +6,6 @@ class Product < ApplicationRecord
   belongs_to :user
   belongs_to :cover, optional: true, class_name: Picture, foreign_key: :picture_id, dependent: :destroy
   belongs_to :origin
-  has_many :bids, dependent: :destroy 
   has_many :comments, dependent: :destroy
   has_many :purchases
   has_many :product_picture, dependent: :destroy

@@ -71,16 +71,12 @@ class PurchasesController < ApplicationController
   end
 
   def set_destination
-    if is_an_auction?
-      if is_my_destiny?(params)
-        if i_won_the_auction?
-          if @purchase.destiny.nil?
-            @purchase.update_attribute(:origin_id, @origin.id)
-            save_and_render @purchase
-          else 
-            render json: {authorization: 'destiny was set'}, status: :unprocessable_entity ; false 
-          end
-        end
+    if is_my_destiny?(params)
+      if @purchase.destiny.nil?
+        @purchase.update_attribute(:origin_id, @origin.id)
+        save_and_render @purchase
+      else 
+        render json: {authorization: 'destiny was set'}, status: :unprocessable_entity ; false 
       end
     end
   end
@@ -92,7 +88,6 @@ class PurchasesController < ApplicationController
       if key.include?("product")
         options = JSON.parse(options)
         @product = Product.find options["product_id"]
-        if !@product.is_auction 
           if is_the_destiny_mine?(options)
             if @product.stock >= options["quantity"] 
               purchase = Purchase.new(buyer_id:@current_user.id, seller_id:@product.user.id, product_id:@product.id, quantity:options["quantity"], total_price:(@product.price*options["quantity"]), destiny:@origin)
@@ -108,9 +103,6 @@ class PurchasesController < ApplicationController
           else
             errors["product#{options["product_id"]}"] = "the destiny is not mine" 
           end
-        else
-          errors["product#{options["product_id"]}"] = "product is an auction" 
-        end
       end
     end
     if result.empty?
@@ -118,26 +110,6 @@ class PurchasesController < ApplicationController
       render json: errors, status: :unprocessable_entity 
     else
       render json: {result: result, errors: errors}, status: :ok 
-    end
-  end
-
-  def finish_auction
-    if im_selling?
-      if is_an_auction?
-        last_bid = @product.bids
-        if !last_bid.empty?
-          last_bid = last_bid.last
-          purchase = Purchase.new(seller_id:@current_user.id, buyer_id:last_bid.user_id, product_id:@product.id, quantity:@product.stock, total_price:last_bid.bid)
-          @product.update_attribute(:stock, 0)
-          if purchase.save
-            render json: {purchase: purchase, product: @product}, status: :ok
-          else
-            render json: {purchase:purchase.errors.messages, product:@product.errors.messages}, status: :unprocessable_entity
-          end  
-        else 
-          render json: {authorization: 'is not a bid'}, status: :unprocessable_entity
-        end
-      end
     end
   end
 
@@ -170,14 +142,6 @@ class PurchasesController < ApplicationController
   def is_my_destiny?(params)
     # pp origin_id = params[:destiny] or 
     (@origin = Origin.find(params[:origin_id])).user_id == @current_user.id 
-  end
-
-  def is_an_auction?
-    if @product.is_auction then true else permissions_error ; false end
-  end
-
-  def i_won_the_auction?
-    if (@purchase = @product.purchases.first).buyer_id == @current_user.id then true else permissions_error ; false end
   end
 
   def valid_score?(score)
