@@ -7,7 +7,7 @@ Rails.application.configure do
   config.cache_classes = false
 
   #Fake OpenSSL secure?
-  config.force_ssl = true
+  #config.force_ssl = true #It doesnot work by itself..!
 
   # Do not eager load code on boot.
   config.eager_load = false

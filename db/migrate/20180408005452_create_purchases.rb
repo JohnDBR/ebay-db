@@ -1,8 +1,8 @@
 class CreatePurchases < ActiveRecord::Migration[5.1]
   def change
     create_table :purchases do |t|
-      t.references :seller, index: true, foreign_key: true
-      t.references :buyer, index: true, foreign_key: true
+      t.integer :seller_id #references :seller, index: true, type: :integer, foreign_key: true
+      t.integer :buyer_id #references :buyer, index: true, type: :integer, foreign_key: true
       t.integer :origin_id
       t.integer :product_id
       t.integer :quantity, default: 1

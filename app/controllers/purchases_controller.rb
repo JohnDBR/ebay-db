@@ -1,6 +1,6 @@
 class PurchasesController < ApplicationController
   before_action :set_purchase, only: [:show, :set_buyer_score, :set_seller_score, :set_was_shipped, :set_was_delivered]
-  before_action :set_product, only: [:finish_auction, :set_destination]
+  before_action :set_product, only: [:set_destination]
 
   def index
     render_ok @current_user.bought_products

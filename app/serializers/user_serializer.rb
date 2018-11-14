@@ -3,10 +3,4 @@ class UserSerializer < ActiveModel::Serializer
 
   belongs_to :picture
   has_one :block
-  # has_many :origins
-  # has_many :products
-  # has_many :comments
-  # has_many :bids  
-  # has_many :sold_products 
-  # has_many :bought_products
 end
